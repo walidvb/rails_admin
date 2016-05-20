@@ -240,67 +240,67 @@ $(document).on 'rails_admin.dom_ready', (e, content) ->
         options = $(@).data('options')
         config_options = $.parseJSON(options['config_options'])
         if config_options
-          if !config_options['inlineMode']
-            config_options['inlineMode'] = false
+          config_options['imageUploadParams'].authenticity_token = $('meta[name=csrf-token]').attr('content');
+          config_options['imageManagerLoadParams'].authenticity_token = $('meta[name=csrf-token]').attr('content');
+          if !config_options['toolbarInline']
+            config_options['toolbarInline'] = false
         else
-          config_options = { inlineMode: false }
-
-        uploadEnabled =
+          config_options = {toolbarInline: false}
+    
         if config_options['imageUploadURL']
-          config_options['imageUploadParams'] =
-            authenticity_token: $('meta[name=csrf-token]').attr('content')
-
+          uploadEnabled = true;
+    
         $(@).addClass('froala-wysiwyged')
-        $(@).editable(config_options)
+        $(@).froalaEditor(config_options)
         if uploadEnabled
-          $(@).on 'editable.imageError', (e, editor, error) ->
+          $(@).on 'froalaEditor.imageError', (e, editor, error) ->
             alert("error uploading image: " + error.message);
             # Custom error message returned from the server.
             if error.code == 0
-
-            # Bad link.
+    
+    # Bad link.
             else if error.code == 1
-
-            # No link in upload response.
+    
+    # No link in upload response.
             else if error.code == 2
-
-            # Error during image upload.
+    
+    # Error during image upload.
             else if error.code == 3
-
-            # Parsing response failed.
+    
+    # Parsing response failed.
             else if error.code == 4
-
-            # Image too large.
+    
+    # Image too large.
             else if error.code == 5
-
-            # Invalid image type.
+    
+    # Invalid image type.
             else if error.code == 6
-
-            # Image can be uploaded only to same domain in IE 8 and IE 9.
+    
+    # Image can be uploaded only to same domain in IE 8 and IE 9.
             else if error.code == 7
-
+    
             else
-
+    
             return
-
-          .on('editable.afterRemoveImage', (e, editor, $img) ->
-            # Set the image source to the image delete params.
+    
+          .on('froalaEditor.image.removed', (e, editor, $img) ->
+    # Set the image source to the image delete params.
             editor.options.imageDeleteParams =
               src: $img.attr('src')
               authenticity_token: $('meta[name=csrf-token]').attr('content')
             # Make the delete request.
             editor.deleteImage $img
             return
-          ).on('editable.imageDeleteSuccess', (e, editor, data) ->
-            # handle success
-          ).on 'editable.imageDeleteError', (e, editor, error) ->
-            # handle error
+          ).on('froalaEditor.imageDeleteSuccess', (e, editor, data) ->
+    # handle success
+          ).on 'froalaEditor.imageDeleteError', (e, editor, error) ->
+    # handle error
             alert("error deleting image: " + error.message);
-
+    
     array = content.find('[data-richtext=froala-wysiwyg]').not('.froala-wysiwyged')
     if array.length
       options = $(array[0]).data('options')
-      if not $.isFunction($.fn.editable)
+      if not $.isFunction($.fn.froalaEditor)
         $('head').append('<link href="' + options['csspath'] + '" rel="stylesheet" media="all" type="text\/css">')
         $.getScript options['jspath'], (script, textStatus, jqXHR) =>
           goFroalaWysiwygs(array)
